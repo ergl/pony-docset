@@ -1,0 +1,3 @@
+[submodule "docs/stdlib.ponylang.org"]
+	path = docs/stdlib.ponylang.org
+	url = git@github.com:ponylang/stdlib.ponylang.org.git

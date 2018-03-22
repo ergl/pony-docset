@@ -1,0 +1,8 @@
+{
+    "name": "pony-docset-parser",
+    "version": "0.1.0",
+    "main": "./src/main.js",
+    "dependencies": {
+        "jsdom": "11.6.2"
+    }
+}
