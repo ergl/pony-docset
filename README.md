@@ -17,7 +17,7 @@ Download the [latest revision](https://github.com/ergl/pony-docset/releases) of
 the docset and unzip it. To install it just double-click on `Pony.docset` and
 Dash will add it automatically.
 
-## Installation for Zeal (Linux or Windows
+## Installation for Zeal (Linux or Windows)
 
 **Untested, taken from [https://github.com/obstschale/octave-docset](https://github.com/obstschale/octave-docset)**
 
