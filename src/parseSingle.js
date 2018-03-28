@@ -115,18 +115,14 @@ function get_file_type(document) {
 }
 
 function get_file_title(url, type, document) {
-    const raw_title_element = document.getElementsByTagName('h1')[0];
-    if (raw_title_element === undefined && type === 'Package') {
-        const package_name = capitalize(url.split('/')[1].split('-')[0]);
-        return package_name;
-    }
-
-    const raw_title = raw_title_element.innerHTML;
     if (type === 'Package') {
-        return raw_title.split(' ', 1)[0];
+        return document
+            .getElementsByClassName('wy-breadcrumbs')[0]
+            .children[1].textContent.split(' ')[1];
     }
 
-    return raw_title.split('[', 1)[0];
+    const raw_title_element = document.getElementsByTagName('h1')[0];
+    return raw_title_element.innerHTML.split('[', 1)[0];
 }
 
 function to_dash_type(type) {
