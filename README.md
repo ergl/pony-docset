@@ -29,7 +29,7 @@ Restart Zeal and Octave should be loaded automatically.
 
 ### Generate docset
 
-The docset is generated with an ugly combination of bash, javascript and the original
+The docset is generated with an ugly combination of javascript and the original
 [Pony documentation](https://stdlib.ponylang.org).
 
-To generate the docset, simply run `make`.
+To generate the docset, simply run `make`. (Note: It will take a while).
