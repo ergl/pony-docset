@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "main": "./src/main.js",
     "dependencies": {
-        "jsdom": "11.6.2"
+        "jsdom": "11.6.2",
+        "better-sqlite3": "4.0.1"
     }
 }
