@@ -59,7 +59,16 @@ function allSubDirs(givenPath) {
 
 function publicDirs(givenPath) {
     const isPrivate = RegExp('.*-_.*');
-    const discardable = ['css', 'js', 'search', 'img', 'fonts'];
+    const discardable = [
+        'css',
+        'js',
+        'search',
+        'img',
+        'fonts',
+        'license',
+        'src',
+        'packages-stdlib--index'
+    ];
     const all_subdirs = allSubDirs(givenPath);
     return all_subdirs.filter(folderPath => {
         const public = !isPrivate.test(folderPath);
