@@ -23,7 +23,7 @@ Dash will add it automatically.
 
 To manually install a docset in Zeal, download the [latest revision](https://github.com/ergl/pony-docset/releases),
 unzip it and copy it into `%HOMEPATH%\AppData\zeal\docset\`.
-Restart Zeal and Octave should be loaded automatically.
+Restart Zeal and the documentation should be loaded automatically.
 
 ---
 
