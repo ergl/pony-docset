@@ -17,7 +17,17 @@ function clean_function_name(name) {
 
 function get_names(type, title, elt) {
     const all_siblings = [];
-    while (elt !== null && elt.tagName !== 'H2') {
+    const example_regex = RegExp('example.*');
+    const valid_sibling = e => {
+        if (e.tagName !== 'H2') {
+            return true;
+        } else {
+            const e_id = elt.getAttribute('id');
+            return example_regex.test(e_id);
+        }
+    };
+
+    while (elt !== null && valid_sibling(elt)) {
         if (elt.tagName === 'H3') {
             const id = elt.getAttribute('id');
             const name = clean_function_name(elt);
