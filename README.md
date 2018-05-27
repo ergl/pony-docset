@@ -1,6 +1,6 @@
 # Pony Docset
 
-Latest revision: Pony 0.21.3 | [Download docset](https://github.com/ergl/pony-docset/releases/download/0.21.3.1/Pony.docset.zip)
+Latest revision: Pony 0.22.2 | [Download docset](https://github.com/ergl/pony-docset/releases/download/0.22.2/Pony.docset.zip)
 
 [Pony](https://www.ponylang.org) is an "object-oriented, actor-model,
 capabilities-secure, high-performance programming language". I found the
