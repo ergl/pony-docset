@@ -2,6 +2,22 @@ const jsdom = require('jsdom');
 const fs = require('fs');
 const node_path = require('path');
 
+function to_dash_type(type) {
+    if (type === 'Actor') {
+        return 'Class';
+    }
+
+    if (type === 'Primitive') {
+        return 'Module';
+    }
+
+    return type;
+}
+
+function relPath(root, url) {
+    return node_path.relative(root, url);
+}
+
 function capitalize(word) {
     const [first, ...rest] = word.split('');
     return [first.toUpperCase()].concat(rest).join('');
@@ -12,7 +28,10 @@ function clean_name(title, cleanName) {
 }
 
 function clean_function_name(name) {
-    return `${name.innerHTML.split('[', 1).join('')}`;
+    return `${name.innerHTML
+        .split('<')[0]
+        .split('[', 1)
+        .join('')}`;
 }
 
 function get_names(type, title, elt) {
@@ -112,87 +131,107 @@ function public_fields(title, document) {
     return [];
 }
 
-function get_file_type(document) {
-    const currents = Array.from(
-        document.getElementsByClassName('current')
-    ).filter(e => e.tagName === 'A');
-    const current_a = currents.length === 1 ? currents[0] : undefined;
-    if (current_a) {
-        return capitalize(current_a.textContent.split(' ', 1)[0]);
-    }
+function parseSubType(rootPath, { name, type, path }) {
+    let url = pathToUrl(path);
+    const url_fd = fs.readFileSync(url);
+    const document = new jsdom.JSDOM(url_fd).window.document;
 
-    return null;
-}
+    const topDetails = [
+        {
+            name,
+            type: to_dash_type(type),
+            path: relPath(rootPath, url)
+        }
+    ];
 
-function get_file_title(url, type, document) {
-    if (type === 'Package') {
-        return document
-            .getElementsByClassName('wy-breadcrumbs')[0]
-            .children[1].textContent.split(' ')[1];
-    }
+    const constructors = public_constructors(name, document);
+    const fields = public_fields(name, document);
+    const behaviours = public_behaviours(type, name, document);
+    const functions = public_functions(type, name, document);
 
-    const raw_title_element = document.getElementsByTagName('h1')[0];
-    return raw_title_element.innerHTML.split('[', 1)[0];
-}
-
-function to_dash_type(type) {
-    if (type === 'Actor') {
-        return 'Class';
-    }
-
-    if (type === 'Primitive') {
-        return 'Module';
-    }
-
-    return type;
-}
-
-function parse_doc(root, url, document) {
-    const file_type = get_file_type(document);
-    const title = get_file_title(url, file_type, document);
-    const file_details = {
-        name: title,
-        type: to_dash_type(file_type),
-        path: relPath(root, url)
-    };
-
-    const constructors = public_constructors(title, document);
-    const fields = public_fields(title, document);
-    const behaviours = public_behaviours(file_type, title, document);
-    const functions = public_functions(file_type, title, document);
-
-    const all_functions = constructors
+    const all_info = constructors
         .concat(fields)
         .concat(behaviours)
         .concat(functions)
         .map(elt => {
             const { type: pony_type, name, id } = elt;
-            const rel_url = relPath(root, url);
+            const rel_url = relPath(rootPath, url);
             const real_url = `${rel_url}#${id}`;
             return { name, type: to_dash_type(pony_type), path: real_url };
         });
 
-    all_functions.unshift(file_details);
-    return all_functions;
+    return topDetails.concat(all_info);
 }
 
-function relPath(root, url) {
-    return node_path.relative(root, url);
+function getPublicTypes(dirPath, url) {
+    const url_fd = fs.readFileSync(url);
+    const document = new jsdom.JSDOM(url_fd).window.document;
+
+    const publicTypes = [];
+    const documentTypes = Array.from(
+        document.querySelector('h2#public-types + ul').children
+    );
+
+    for (documentType of documentTypes) {
+        const element = documentType.children[0];
+        const typePath = element.getAttribute('href');
+        const elementHTML = element.innerHTML;
+
+        const [ponyType, ponyName] = elementHTML.split(' ');
+        publicTypes.push({
+            name: ponyName,
+            type: capitalize(ponyType),
+            path: node_path.resolve(dirPath, typePath)
+        });
+    }
+
+    return publicTypes;
 }
 
-function parse(rootPath, dirPath) {
-    if (!dirPath.endsWith('.html')) {
-        if (dirPath.endsWith('/')) {
-            dirPath = dirPath + 'index.html';
+function getPackageName(path) {
+    const path_parts = path.split(node_path.sep);
+    var packageName = path_parts[path_parts.length - 1];
+    packageName = packageName.split('--')[0];
+    packageName = packageName.replace('-', '/');
+    return packageName;
+}
+
+function pathToUrl(path) {
+    let url = path;
+    if (!url.endsWith('.html')) {
+        if (url.endsWith('/')) {
+            url = url + 'index.html';
         } else {
-            dirPath = dirPath + '/index.html';
+            url = url + '/index.html';
         }
     }
 
-    const url_fd = fs.readFileSync(dirPath);
-    const dom = new jsdom.JSDOM(url_fd);
-    const file_details = parse_doc(rootPath, dirPath, dom.window.document);
-    return file_details;
+    return url;
+}
+
+function parse(rootPath, dirPath) {
+    const originalPath = dirPath;
+    const packageName = getPackageName(originalPath);
+
+    let url = pathToUrl(dirPath);
+
+    const allDetails = [];
+    allDetails.push({
+        name: packageName,
+        type: to_dash_type('Package'),
+        path: relPath(rootPath, url)
+    });
+
+    const public_types = getPublicTypes(originalPath, url);
+    let type_details = undefined;
+    for (public_type of public_types) {
+        type_details = parseSubType(rootPath, public_type);
+        for (type_detail of type_details) {
+            allDetails.push(type_detail);
+        }
+    }
+
+    return allDetails;
 }
 
 module.exports = {

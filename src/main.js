@@ -1,5 +1,5 @@
 const utils = require('./utils');
-const parseSingle = require('./parseSingle');
+const parsePackage = require('./parsePackage');
 
 const sqlite3 = require('better-sqlite3');
 const path = require('path');
@@ -52,15 +52,15 @@ function main(argc, argv) {
         'INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (@name, @type, @path)'
     );
 
-    const publicDirs = utils.publicDirs(givenPath);
-    const allLength = publicDirs.length;
+    const packageDirs = utils.packageDirs(givenPath);
+    const allLength = packageDirs.length;
     let i = 1;
     let directoryDetails;
-    for (directory of publicDirs) {
-        directoryDetails = parseSingle.parse(givenPath, directory);
-        for (detail of directoryDetails) {
-            utils.printInline(`${i} / ${allLength} [${detail.name}]`);
-            stmt.run(detail);
+    for (package of packageDirs) {
+        directoryDetails = parsePackage.parse(givenPath, package);
+        for (typeDetails of directoryDetails) {
+            utils.printInline(`${i} / ${allLength} [${typeDetails.name}]`);
+            stmt.run(typeDetails);
         }
         i++;
     }

@@ -57,8 +57,9 @@ function allSubDirs(givenPath) {
         .filter(isDir);
 }
 
-function publicDirs(givenPath) {
-    const isPrivate = RegExp('.*-_.*');
+function packageDirs(givenPath) {
+    const isPackage = RegExp('.*--index');
+    const all_subdirs = allSubDirs(givenPath);
     const discardable = [
         'css',
         'js',
@@ -69,12 +70,10 @@ function publicDirs(givenPath) {
         'src',
         'packages-stdlib--index'
     ];
-    const all_subdirs = allSubDirs(givenPath);
     return all_subdirs.filter(folderPath => {
-        const public = !isPrivate.test(folderPath);
+        const package_dir = isPackage.test(folderPath);
         const shouldDiscard = discardable.includes(path.basename(folderPath));
-
-        return public && !shouldDiscard;
+        return package_dir && !shouldDiscard;
     });
 }
 
@@ -92,7 +91,7 @@ function printInline(text) {
 
 module.exports = {
     mkdirSync,
-    publicDirs,
+    packageDirs,
     writePlist,
     printInline,
     copyFolderSync
