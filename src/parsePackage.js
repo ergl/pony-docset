@@ -107,10 +107,10 @@ function get_field_name(title, field) {
 function gather_fields(title, elt) {
     const all_siblings = [];
     while (elt !== null && elt.tagName !== 'H2') {
-        if (elt.tagName === 'UL') {
-            const field_name = parse_field(elt.children[0].textContent);
+        if (elt.tagName === 'H3') {
+            const field_name = parse_field(elt.textContent);
             all_siblings.push({
-                id: 'public-fields',
+                id: elt.getAttribute('id'),
                 type: 'Field',
                 name: get_field_name(title, field_name)
             });
